@@ -95,7 +95,7 @@ setInterval(fetchNowPlaying, 12_000);
 let blazeToken = null;
 async function getToken() {
   if (blazeToken) return blazeToken;
-  const key = "bLaZeX1234_f1re$treetz!"; // your real API_KEY
+  const key = "165d5a44-3ae6-4fa9-86c4-e76867db3ff4"; // your real API_KEY
   const res = await fetch("/api/get-token", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
