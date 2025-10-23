@@ -91,97 +91,72 @@ async function fetchNowPlaying(){
 fetchNowPlaying();
 setInterval(fetchNowPlaying, 12_000);
 
-// requests logic
-const requestForm = document.getElementById('requestForm');
-const requestMsg = document.getElementById('requestMsg');
+// === TOKEN HANDLING ===
+let blazeToken = null;
+async function getToken() {
+  if (blazeToken) return blazeToken;
+  const key = "bLaZeX1234_f1re$treetz!"; // your real API_KEY
+  const res = await fetch("/api/get-token", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key })
+  });
+  const j = await res.json();
+  if (!res.ok || !j.token) throw new Error(j.error || "Token error");
+  blazeToken = j.token;
+  setTimeout(() => (blazeToken = null), 8 * 60 * 1000); // expire early client-side
+  return blazeToken;
+}
 
-requestForm.addEventListener('submit', async (ev)=>{
+// === SONG REQUEST ===
+requestForm.addEventListener("submit", async (ev) => {
   ev.preventDefault();
-  const name = document.getElementById('r-name').value.trim();
-  const song = document.getElementById('r-song').value.trim();
-  const note = document.getElementById('r-note').value.trim();
+  const name = document.getElementById("r-name").value.trim();
+  const song = document.getElementById("r-song").value.trim();
+  const note = document.getElementById("r-note").value.trim();
+  requestMsg.textContent = "Sending...";
 
-  requestMsg.textContent = 'Sending...';
   try {
-    const res = await fetch('/api/request-song', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({name, song, note})
+    const token = await getToken();
+    const res = await fetch("/api/request-song", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ name, song, note })
     });
     const j = await res.json();
     if (res.ok) {
-      requestMsg.textContent = '✅ Sent to the crew — we got you!';
+      requestMsg.textContent = "✅ Sent to the crew — we got you!";
       requestForm.reset();
-    } else {
-      requestMsg.textContent = j?.error || 'Failed to send request.';
-    }
-  } catch(err){ requestMsg.textContent = 'Network error, try again.'; }
-});
-
-// voice recorder
-let mediaRecorder, audioChunks = [], recordedBlob = null;
-const recordBtn = document.getElementById('recordBtn');
-const recorderUI = document.getElementById('recorder');
-const stopRec = document.getElementById('stopRec');
-const sendRec = document.getElementById('sendRec');
-const cancelRec = document.getElementById('cancelRec');
-const recTime = document.getElementById('recTime');
-let recTimer=0, recInterval=null;
-
-function startTimer(){ recTimer=0; recInterval=setInterval(()=>{ recTimer++; const mm = Math.floor(recTimer/60); const ss = String(recTimer%60).padStart(2,'0'); recTime.textContent = `${mm}:${ss}`; },1000); }
-function stopTimer(){ clearInterval(recInterval); recInterval=null; recTime.textContent='0:00'; }
-
-recordBtn.addEventListener('click', async ()=>{
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder = new MediaRecorder(stream);
-    audioChunks = [];
-    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-    mediaRecorder.onstop = () => {
-      recordedBlob = new Blob(audioChunks, {type:'audio/webm'});
-      // show recorder UI
-      recorderUI.classList.remove('hidden');
-    };
-    mediaRecorder.start();
-    startTimer();
-    recorderUI.classList.remove('hidden');
-    recorderUI.querySelector('p').textContent = 'Recording...';
-  } catch(e){
-    alert('Microphone access needed to record voice shout.');
+    } else requestMsg.textContent = j.error || "Failed to send request.";
+  } catch (err) {
+    requestMsg.textContent = err.message;
   }
 });
 
-stopRec.addEventListener('click', ()=> {
-  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-  stopTimer();
-});
-
-cancelRec.addEventListener('click', ()=>{
-  recordedBlob = null;
-  recorderUI.classList.add('hidden');
-  stopTimer();
-});
-
-sendRec.addEventListener('click', async ()=>{
-  if (!recordedBlob){ alert('No recording yet.'); return; }
-  requestMsg.textContent = 'Sending voice shout...';
+// === VOICE SHOUT ===
+sendRec.addEventListener("click", async () => {
+  if (!recordedBlob) return alert("No recording yet.");
+  requestMsg.textContent = "Sending voice shout...";
   const fd = new FormData();
-  fd.append('voice', recordedBlob, 'shout.webm');
-  // optional metadata
-  fd.append('name', document.getElementById('r-name').value || 'Anonymous');
-  fd.append('note', document.getElementById('r-note').value || '');
-
+  fd.append("voice", recordedBlob, "shout.webm");
   try {
-    const res = await fetch('/api/voice-shout', { method:'POST', body:fd });
+    const token = await getToken();
+    const res = await fetch("/api/voice-shout", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd
+    });
     const j = await res.json();
     if (res.ok) {
-      requestMsg.textContent = '🔥 Voice shout sent! Crew will peep it.';
+      requestMsg.textContent = "🔥 Voice shout sent!";
+      recorderUI.classList.add("hidden");
       recordedBlob = null;
-      recorderUI.classList.add('hidden');
-    } else {
-      requestMsg.textContent = j?.error || 'Failed to send voice.';
-    }
-  } catch(e){
-    requestMsg.textContent = 'Network error sending voice.';
+    } else requestMsg.textContent = j.error || "Failed to send voice.";
+  } catch (err) {
+    requestMsg.textContent = err.message;
   }
 });
+
