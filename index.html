@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BLAZE STREETZ — #1 FOR REAL HIP HOP AND R&B</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="hero">
+      <div class="logo">BLAZE <span class="streetz">STREETZ</span></div>
+      <div class="slogan">#1 FOR REAL HIP HOP AND R&amp;B</div>
+    </header>
+
+    <main class="container">
+      <section class="player-card neon">
+        <div class="album-art" id="albumArt">
+          <img id="artImg" src="" alt="Album art" />
+        </div>
+
+        <div class="player-info">
+          <h2 id="nowTitle">Loading...</h2>
+          <p id="nowArtist"></p>
+
+          <div class="controls">
+            <button id="playBtn" class="btn big">🔊 PLAY</button>
+            <a id="listenLink" class="btn ghost" target="_blank" rel="noopener">Open Stream</a>
+          </div>
+
+          <div class="meta">
+            <small id="listeners">Listeners: —</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="requests neon">
+        <h3>Song Request — Lemme Hear Ya 🔥</h3>
+        <form id="requestForm">
+          <input type="text" name="name" id="r-name" placeholder="Your name (or nickname)" required />
+          <input type="text" name="song" id="r-song" placeholder="Song title & artist (e.g. Drake - Hotline Bling)" required />
+          <textarea name="note" id="r-note" placeholder="Message to DJ / shoutout (optional)"></textarea>
+
+          <div class="controls-row">
+            <button type="submit" class="btn">📨 Send Request</button>
+            <button type="button" id="recordBtn" class="btn ghost">🎤 Record Voice Shout</button>
+          </div>
+
+          <small class="hint">Requests limited to 10/min. Keep it hood and respectful — no filth for the kids.</small>
+        </form>
+
+        <div id="recorder" class="recorder hidden">
+          <p>Recording... <span id="recTime">0:00</span></p>
+          <button id="stopRec" class="btn red">Stop</button>
+          <button id="sendRec" class="btn">Send Voice Shout</button>
+          <button id="cancelRec" class="btn ghost">Cancel</button>
+        </div>
+
+        <div id="requestMsg" class="msg"></div>
+      </section>
+
+      <section class="history neon">
+        <h3>Recently Played</h3>
+        <ul id="historyList"></ul>
+      </section>
+    </main>
+
+    <!-- Explicit content modal -->
+    <div id="explicitModal" class="modal hidden">
+      <div class="modal-content neon">
+        <h2>⚠️ EXPLICIT CONTENT</h2>
+        <p>BLAZE STREETZ plays explicit lyrics. You must be 18+ to play the stream. You down?</p>
+        <div class="modal-actions">
+          <label><input type="checkbox" id="ageConfirm" /> I'm 18 or older</label>
+          <div>
+            <button id="confirmPlay" class="btn big">Yeah, lemme hear it</button>
+            <button id="declinePlay" class="btn ghost">Nope</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <small>Azura API: https://azura.typicalmedia.net/api/nowplaying/blaze_streetz</small>
+    </footer>
+  </div>
+
+  <script>
+    // station config from user
+    window.STATION_CONFIG = {
+      azuraNowPlaying: "https://azura.typicalmedia.net/api/nowplaying/blaze_streetz",
+      streamUrl: "https://cdnstream1.typicalmedia.net/bstreetz",
+      publicListenUrl: "https://azura.typicalmedia.net/listen/blaze_streetz/live.mp3"
+    };
+  </script>
+
+  <script src="app.js"></script>
+</body>
+</html>
