@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing song info" });
 
   const { DISCORD_WEBHOOK, API_KEY } = process.env;
-  const key = req.headers["x-api-key"];
+  const key = req.headers["165d5a44-3ae6-4fa9-86c4-e76867db3ff4"];
   if (key !== API_KEY) return res.status(401).json({ error: "Unauthorized" });
 
   try {
