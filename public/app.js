@@ -26,14 +26,21 @@ playBtn.addEventListener('click', async () => {
   togglePlayer();
 });
 
-confirmPlay.addEventListener('click', () => {
-  if (!ageConfirm.checked) {
-    alert('You gotta check "I am 18 or older" fam.');
+confirmPlay.addEventListener('click', (e) => {
+  e.preventDefault();
+  if (!ageConfirm || !ageConfirm.checked) {
+    alert('You gotta check “I am 18 or older” fam.');
     return;
   }
+
   userConfirmed = true;
-  explicitModal.classList.add('hidden');
-  togglePlayer();
+  if (explicitModal) {
+    explicitModal.classList.add('hidden');
+    explicitModal.style.display = 'none';
+  }
+
+  // Give a short delay to avoid audio autoplay blocking
+  setTimeout(() => togglePlayer(), 150);
 });
 declinePlay.addEventListener('click', () => {
   explicitModal.classList.add('hidden');
